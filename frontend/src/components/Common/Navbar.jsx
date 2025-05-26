@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import SearchBar from "./Searchbar";
 import CartDrawer from "../Layout/CartDrawer";
+import logo from "../../assets/Logo.jpg";
 import {
   HiOutlineUser,
   HiOutlineShoppingBag,
@@ -20,11 +21,11 @@ const Navbar = () => {
   };
   return (
     <>
-      <nav className="container mx-auto flex items-center justify-between py-4 px-6">
+      <nav className="container mx-auto flex items-center justify-between py-1 px-6">
         {/*Left section - Logo*/}
         <div>
           <Link to="/" className="text-2xl font-medium">
-            Rabbit
+            <img src={logo} alt="Logo" className="h-20 w-100" />
           </Link>
         </div>
         {/*Center section - Navigation links*/}
