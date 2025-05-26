@@ -10,7 +10,7 @@ import {
 import { IoMdClose } from "react-icons/io";
 
 const Navbar = () => {
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [navDrawerOpen, setNavDrawerOpen] = useState(false); // for menu option in mobile phone
   const toggleNavDrwaer = () => {
     setNavDrawerOpen(!navDrawerOpen);
