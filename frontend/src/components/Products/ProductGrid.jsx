@@ -10,7 +10,7 @@ const ProductGrid = ({ products }) => {
               <img
                 src={product.images[0].url}
                 alt={product.images[0].altText || product.name}
-                className="w-full h-full object-cover rounded-lg"
+                className="w-full h-[300px] object-cover rounded-lg"
               />
             </div>
             <h3 className="text-sm mb-2">{product.name}</h3>
