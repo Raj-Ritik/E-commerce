@@ -31,7 +31,7 @@ const Navbar = () => {
         {/*Center section - Navigation links*/}
         <div className="hidden md:flex space-x-6">
           <Link
-            to="/collections/all" 
+            to="/collections/all"
             className="text-gray-700 hover:text-black text-sm font-medium uppercase"
           >
             Men
@@ -57,6 +57,12 @@ const Navbar = () => {
         </div>
         {/*Right Section - Icons*/}
         <div className="flex items-center space-x-4">
+          <Link
+            to="/admin"
+            className="block bg-black px-2 rounded text-sm text-white"
+          >
+            Admin
+          </Link>
           <Link to="/profile" className="hover:text-black">
             <HiOutlineUser className="h-6 w-6 text-gray-700" />
           </Link>
