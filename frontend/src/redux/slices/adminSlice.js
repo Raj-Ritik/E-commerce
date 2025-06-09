@@ -53,7 +53,7 @@ export const updateUser = createAsyncThunk(
 // Delete a user
 export const deleteUser = createAsyncThunk(
   "admin/deleteUser",
-  async ({ id }) => {
+  async (id) => {
     await axios.delete(
       `${import.meta.env.VITE_BACKEND_URL}/api/admin/users/${id}`,
       {
