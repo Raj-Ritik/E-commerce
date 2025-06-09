@@ -4,6 +4,7 @@ VyapaarSetu is a full-stack e-commerce platform designed to bridge the gap betwe
 
 ## Demo
 [VyapaarSetu](https://e-commerce-frontend-95pn.onrender.com/)
+
 https://github.com/user-attachments/assets/a53435bc-c99a-4773-9e69-d26b46e8473f
 
 ## Tech stack
