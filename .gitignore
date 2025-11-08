@@ -24,3 +24,15 @@ dist-ssr
 *.sw?
 
 .env
+
+#Logs
+logs
+*.logs
+
+#nodes modules
+frontend/node_modules/
+backend/node_modules/
+
+#environment files
+fromtend/.env
+backend/.env
