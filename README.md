@@ -3,7 +3,7 @@
 VyapaarSetu is a full-stack e-commerce platform designed to bridge the gap between sellers and buyers in a seamless, secure, and user-friendly environment. Built using the **MERN** stack (MongoDB, Express.js, React, and Node.js), it enables users to register, log in, browse products,applying Filters, manage carts, and place orders with real-time interaction.PayPal integration for secure payments The admin dashboard supports product and user management, while secure JWT-based authentication, cloud image upload, and modern UI/UX with Tailwind CSS ensure both performance and aesthetic appeal.
 
 ### Admin Credential
-email : admin@example.com
+email : admin@example.com <br>
 password : 123456
 
 ## Demo
