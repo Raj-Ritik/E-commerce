@@ -89,7 +89,7 @@ const Register = () => {
             {loading ? "Loading ..." : "Sign Up"}
           </button>
           <p className="mt-6 text-center text-sm">
-            Don't have an account?{" "}
+            Already have an account?{" "}
             <Link
               to={`/login?redirect=${encodeURIComponent(redirect)}`}
               className="text-blue-500"

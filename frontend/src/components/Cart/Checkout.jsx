@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createCheckout } from "../../redux/slices/checkoutSlice";
 import axios from "axios";
 // import { clearCart } from "../../redux/slices/cartSlice";
+
 const Checkout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -22,7 +23,7 @@ const Checkout = () => {
     phone: "",
   });
 
-  // ensure cart is loaded before processing
+  // Ensure cart is loaded before processing
   useEffect(() => {
     if (!cart || !cart.products || cart.products.length === 0) {
       navigate("/");
@@ -41,7 +42,7 @@ const Checkout = () => {
         })
       );
       if (res.payload && res.payload._id) {
-        setCheckoutId(res.payload._id); // set checkoutId if checkout was successful
+        setCheckoutId(res.payload._id);
       }
     }
   };
@@ -53,7 +54,7 @@ const Checkout = () => {
         return;
       }
 
-      const response = await axios.put(
+      await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/api/checkout/${checkoutId}/pay`,
         {
           paymentStatus: "paid",
@@ -77,10 +78,8 @@ const Checkout = () => {
 
   const handleFinalizeCheckout = async (checkoutId, details) => {
     try {
-      const response = await axios.post(
-        `${
-          import.meta.env.VITE_BACKEND_URL
-        }/api/checkout/${checkoutId}/finalize`,
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/checkout/${checkoutId}/finalize`,
         { paymentStatus: "paid", paymentDetails: details },
         {
           headers: {
@@ -88,13 +87,51 @@ const Checkout = () => {
           },
         }
       );
-      navigate("/order-confirmation"); // Finalize Checkout if payment is successfullF
+      alert("✅ Payment Successful! Your order has been placed.");
+      navigate("/order-confirmation");
     } catch (error) {
       console.error(error);
     }
   };
 
-  if (loading) return <p>Loading Cart ...</p>;
+  // 🧪 TEST PAYMENT HANDLER
+  const handleTestPayment = async () => {
+    if (!checkoutId) {
+      alert("Please click 'Continue to Payment' first.");
+      return;
+    }
+
+    try {
+      // Simulate successful payment
+      await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/api/checkout/${checkoutId}/pay`,
+        {
+          paymentStatus: "paid",
+          paymentDetails: {
+            method: "Test Payment",
+            message: "Simulated payment successful.",
+            paidAt: new Date().toISOString(),
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+          },
+        }
+      );
+
+      // Finalize checkout after test payment
+      await handleFinalizeCheckout(checkoutId, {
+        method: "Test Payment",
+        transactionId: "TEST-" + Date.now(),
+      });
+    } catch (error) {
+      console.error("Test payment error:", error);
+      alert("❌ Test payment failed. Check console for details.");
+    }
+  };
+
+  if (loading) return <p>Loading Cart...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!cart || !cart.products || cart.products.length === 0) {
     return <p>Your Cart is Empty</p>;
@@ -102,11 +139,11 @@ const Checkout = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto py-10 px-6 tracking-tighter">
-      {/* Left-Section */}
+      {/* Left Section */}
       <div className="bg-white rounded-lg p-6">
         <h2 className="text-2xl uppercase mb-6">Checkout</h2>
         <form onSubmit={handleCreateCheckout}>
-          <h3 className="text-lg mb-4 ">Contact Details</h3>
+          <h3 className="text-lg mb-4">Contact Details</h3>
           <div className="mb-4">
             <label className="block text-gray-700">Email</label>
             <input
@@ -116,6 +153,7 @@ const Checkout = () => {
               disabled
             />
           </div>
+
           <h3 className="text-lg mb-4">Delivery</h3>
           <div className="mb-4 grid grid-cols-2 gap-4">
             <div>
@@ -149,6 +187,7 @@ const Checkout = () => {
               />
             </div>
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700">Address</label>
             <input
@@ -164,6 +203,7 @@ const Checkout = () => {
               required
             />
           </div>
+
           <div className="mb-4 grid grid-cols-2 gap-4">
             <div>
               <label className="block text-gray-700">City</label>
@@ -196,6 +236,7 @@ const Checkout = () => {
               />
             </div>
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700">Country</label>
             <input
@@ -211,6 +252,7 @@ const Checkout = () => {
               required
             />
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700">Phone</label>
             <input
@@ -226,6 +268,7 @@ const Checkout = () => {
               required
             />
           </div>
+
           <div className="mt-6">
             {!checkoutId ? (
               <button
@@ -235,20 +278,30 @@ const Checkout = () => {
                 Continue to Payment
               </button>
             ) : (
-              <div>
-                <h3 className="text-lg mb-4">Pay with Paypal</h3>
-                {/* paypal component */}
+              <div className="space-y-4">
+                <h3 className="text-lg mb-4">Pay with</h3>
+                {/* PayPal Component */}
                 <PayPalButton
                   amount={cart.totalPrice}
                   onSuccess={handlePaymentSuccess}
                   onError={(err) => alert("Payment failed. Try again.")}
                 />
+
+                {/* 🧪 Test Payment Button */}
+                <button
+                  type="button"
+                  onClick={handleTestPayment}
+                  className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700 transition"
+                >
+                  Pay ${cart.totalPrice.toFixed(2)} (Test Mode)
+                </button>
               </div>
             )}
           </div>
         </form>
       </div>
-      {/* Right-Section */}
+
+      {/* Right Section */}
       <div className="bg-gray-50 p-6 rounded-lg">
         <h3 className="text-lg mb-4">Order Summary</h3>
         <div className="border-t py-4 mb-4">

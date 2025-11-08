@@ -19,14 +19,12 @@ export const fetchCart = createAsyncThunk(
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/api/cart`,
-        {
-          params: { userId, guestId },
-        }
+        { params: { userId, guestId } }
       );
       return response.data;
     } catch (error) {
       console.error(error);
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || { message: "Failed to fetch cart" });
     }
   }
 );
@@ -38,19 +36,12 @@ export const addToCart = createAsyncThunk(
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/cart`,
-        {
-          productId,
-          quantity,
-          size,
-          color,
-          guestId,
-          userId
-        }
+        { productId, quantity, size, color, guestId, userId }
       );
       return response.data;
     } catch (error) {
       console.error(error);
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || { message: "Failed to add to cart" });
     }
   }
 );
@@ -62,19 +53,11 @@ export const updateCartItemQuantity = createAsyncThunk(
     try {
       const response = await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/api/cart`,
-        {
-          productId,
-          quantity,
-          size,
-          color,
-          guestId,
-          userId
-        }
+        { productId, quantity, size, color, guestId, userId }
       );
       return response.data;
     } catch (error) {
-      // console.error(error);
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || { message: "Failed to update quantity" });
     }
   }
 );
@@ -87,18 +70,16 @@ export const removeFromCart = createAsyncThunk(
       const response = await axios({
         method: "DELETE",
         url: `${import.meta.env.VITE_BACKEND_URL}/api/cart`,
-        data: { productId, size, color, guestId, userId }
+        data: { productId, size, color, guestId, userId },
       });
       return response.data;
     } catch (error) {
-      // console.error(error);
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || { message: "Failed to remove item" });
     }
   }
 );
 
-
-// Merge guest cart into the user cart
+// ✅ Merge guest cart into the user cart (graceful handling)
 export const mergeCart = createAsyncThunk(
   "cart/mergeCart",
   async ({ guestId, user }, { rejectWithValue }) => {
@@ -114,8 +95,17 @@ export const mergeCart = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      // console.error(error);
-      return rejectWithValue(error.response.data);
+      const msg = error.response?.data?.message || "";
+      // ✅ Ignore harmless errors like "Guest Cart Not Found" or "empty"
+      if (
+        msg.includes("Guest Cart Not Found") ||
+        msg.includes("Guest cart empty") ||
+        msg.includes("No guest cart found")
+      ) {
+        console.log("Guest cart already merged/deleted — skipping merge.");
+        return { message: "Guest cart already handled", products: [] };
+      }
+      return rejectWithValue(error.response?.data || { message: "Failed to merge cart" });
     }
   }
 );
@@ -147,8 +137,9 @@ const cartSlice = createSlice({
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Failed to fetch cart";
+        state.error = action.payload?.message || "Failed to fetch cart";
       })
+
       // add to cart
       .addCase(addToCart.pending, (state) => {
         state.loading = true;
@@ -163,7 +154,8 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message || "Failed to add to cart";
       })
-      // update cart quantity
+
+      // update quantity
       .addCase(updateCartItemQuantity.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -175,9 +167,10 @@ const cartSlice = createSlice({
       })
       .addCase(updateCartItemQuantity.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload?.message || "Failed to update item quantity";
+        state.error = action.payload?.message || "Failed to update quantity";
       })
-      // remove item from cart
+
+      // remove item
       .addCase(removeFromCart.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -191,21 +184,25 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message || "Failed to remove item";
       })
-      //Merge Cart
+
+      // ✅ merge cart (handles silent success)
       .addCase(mergeCart.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(mergeCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.cart = action.payload;
-        saveCartToStorage(action.payload);
+        // If backend only returns a message, keep old cart
+        if (action.payload.products) {
+          state.cart = action.payload;
+          saveCartToStorage(action.payload);
+        }
       })
       .addCase(mergeCart.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to merge cart";
-      })
-  }
+      });
+  },
 });
 
 export const { clearCart } = cartSlice.actions;

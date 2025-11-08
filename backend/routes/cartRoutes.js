@@ -82,7 +82,7 @@ router.post("/", async (req, res) => {
 });
 
 // @route PUT /api/cart
-// @description Update product quantity in the cart for a guest or in logged-in user
+// @description Update product quantity in the cart for a guest or logged-in user
 // @access Public
 router.put("/", async (req, res) => {
   const { productId, quantity, size, color, guestId, userId } = req.body;
@@ -184,16 +184,22 @@ router.post("/merge", protect, async (req, res) => {
 
   try {
     const guestCart = await Cart.findOne({ guestId });
-    const userCart = await Cart.findOne({ user: req.user._id });
+    let userCart = await Cart.findOne({ user: req.user._id });
 
+    // ✅ Gracefully handle missing guest cart
     if (!guestCart) {
-      return res.status(404).json({ message: "Guest Cart Not Found" });
+      console.log("No guest cart found, skipping merge.");
+      return res.status(200).json({ message: "No guest cart found, nothing to merge" });
     }
 
+    // ✅ Handle empty guest cart
     if (guestCart.products.length === 0) {
-      return res.status(400).json({ message: "Guest Cart is empty" });
+      console.log("Guest cart empty, deleting...");
+      await Cart.findOneAndDelete({ guestId });
+      return res.status(200).json({ message: "Guest cart empty, deleted successfully" });
     }
 
+    // ✅ Merge guest cart into existing user cart
     if (userCart) {
       guestCart.products.forEach((guestItem) => {
         const productIndex = userCart.products.findIndex(
@@ -224,14 +230,16 @@ router.post("/merge", protect, async (req, res) => {
       }
 
       return res.status(200).json(userCart);
-    } else {
-      guestCart.user = req.user._id;
-      guestCart.guestId = undefined;
-      await guestCart.save();
-      return res.status(200).json(guestCart);
     }
+
+    // ✅ If user has no existing cart, convert guest cart
+    guestCart.user = req.user._id;
+    guestCart.guestId = undefined;
+    await guestCart.save();
+
+    return res.status(200).json(guestCart);
   } catch (error) {
-    console.error(error);
+    console.error("Cart merge error:", error);
     return res.status(500).json({ message: "Server Error" });
   }
 });

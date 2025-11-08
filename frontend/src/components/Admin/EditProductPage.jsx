@@ -91,8 +91,9 @@ const EditProductPage = () => {
           <input
             type="text"
             name="name"
+            value={productData.name}
             onChange={handleChange}
-            className="w-full border-gray-300"
+            className="w-full border border-gray-300 rounded-md p-2"
             required
           />
         </div>
