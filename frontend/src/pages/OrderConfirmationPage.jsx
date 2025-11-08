@@ -81,10 +81,10 @@ const OrderConfirmationPage = () => {
             <div>
               <h4 className="text-lg font-semibold mb-2">Delivery</h4>
               <p className="text-gray-600">
-                {checkout.shippingAddress.address}
+                {checkout.shippingAddress.address}, {""} {checkout.shippingAddress.postalCode}
               </p>
               <p className="text-gray-600">
-                {checkout.shippingAddress.city}, {""}
+                {checkout.shippingAddress.city}, {""}{checkout.shippingAddress.state}, {""}
                 {checkout.shippingAddress.country}
               </p>
             </div>

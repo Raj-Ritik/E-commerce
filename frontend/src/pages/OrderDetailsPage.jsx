@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { fetchOrderDetails } from "../redux/slices/orderSlice";
 
 const OrderDetailsPage = () => {
@@ -54,6 +53,7 @@ const OrderDetailsPage = () => {
               </span>
             </div>
           </div>
+
           {/* Customer, Payment, Shipping Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-8">
             <div>
@@ -65,44 +65,65 @@ const OrderDetailsPage = () => {
               <h4 className="text-lg font-semibold mb-2">Shipping Info</h4>
               <p>Shipping Method: {orderDetails.shippingMethod}</p>
               <p>
-                Shipping Address: {orderDetails.shippingAddress.city},{" "}
+                Shipping Address: {orderDetails.shippingAddress.address},{" "}
+                {orderDetails.shippingAddress.postalCode},{" "}
+                {orderDetails.shippingAddress.city},{" "}
+                {orderDetails.shippingAddress.state},{" "}
                 {orderDetails.shippingAddress.country}
               </p>
             </div>
           </div>
+
           {/* Product-list */}
           <div className="overflow-x-auto">
             <h4 className="text-lg font-semibold mb-4">Products</h4>
-            <table className="min-w-full text-gray-600 mb-4">
+            <table className="min-w-full text-gray-600 mb-4 text-left border-collapse">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="py-2 px-4">Name</th>
-                  <th className="py-2 px-4">Unit Price</th>
-                  <th className="py-2 px-4">Quantity</th>
-                  <th className="py-2 px-4">Total</th>
+                  <th className="py-3 px-4 text-sm font-semibold text-gray-700 border-b text-left">
+                    Name
+                  </th>
+                  <th className="py-3 px-4 text-sm font-semibold text-gray-700 border-b text-left">
+                    Unit Price
+                  </th>
+                  <th className="py-3 px-4 text-sm font-semibold text-gray-700 border-b text-left">
+                    Quantity
+                  </th>
+                  <th className="py-3 px-4 text-sm font-semibold text-gray-700 border-b text-left">
+                    Total
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {orderDetails.orderItems.map((item) => (
-                  <tr key={item.productId} className="border-b">
-                    <td className="py-2 px-4 flex items-center">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-12 h-12 object-cover rounded-lg mr-4"
-                      />
-                      <Link
-                        to={`/product/${item.productId}`}
-                        className="text-blue-500 hover:underline"
-                      >
-                        {item.name}
-                      </Link>
-                    </td>
-                    <td className="py-2 px-2">${item.price}</td>
-                    <td className="py-2 px-2">{item.quantity}</td>
-                    <td className="py-2 px-2">${item.price * item.quantity}</td>
-                  </tr>
-                ))}
+                {orderDetails.orderItems.map((item) => {
+                  const price = Number(item.price); // ✅ safely convert
+                  const total = price * item.quantity;
+
+                  return (
+                    <tr key={item.productId} className="border-b align-top">
+                      <td className="py-4 px-4 flex items-center space-x-4">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-12 h-12 object-cover rounded-lg"
+                        />
+                        <Link
+                          to={`/product/${item.productId}`}
+                          className="text-blue-500 hover:underline text-sm font-medium"
+                        >
+                          {item.name}
+                        </Link>
+                      </td>
+                      <td className="py-4 px-4 text-sm">
+                        ${price.toFixed(2)}
+                      </td>
+                      <td className="py-4 px-4 text-sm">{item.quantity}</td>
+                      <td className="py-4 px-4 text-sm font-medium">
+                        ${total.toFixed(2)}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -19,6 +19,7 @@ const Checkout = () => {
     address: "",
     city: "",
     postalCode: "",
+    state: "",
     country: "",
     phone: "",
   });
@@ -141,7 +142,7 @@ const Checkout = () => {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto py-10 px-6 tracking-tighter">
       {/* Left Section */}
       <div className="bg-white rounded-lg p-6">
-        <h2 className="text-2xl uppercase mb-6">Checkout</h2>
+        <h2 className="text-2xl uppercase mb-6 font-bold">Checkout</h2>
         <form onSubmit={handleCreateCheckout}>
           <h3 className="text-lg mb-4">Contact Details</h3>
           <div className="mb-4">
@@ -238,6 +239,22 @@ const Checkout = () => {
           </div>
 
           <div className="mb-4">
+            <label className="block text-gray-700">State</label>
+            <input
+              type="text"
+              value={shippingAddress.state}
+              onChange={(e) =>
+                setShippingAddress({
+                  ...shippingAddress,
+                  state: e.target.value,
+                })
+              }
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
             <label className="block text-gray-700">Country</label>
             <input
               type="text"
@@ -303,7 +320,7 @@ const Checkout = () => {
 
       {/* Right Section */}
       <div className="bg-gray-50 p-6 rounded-lg">
-        <h3 className="text-lg mb-4">Order Summary</h3>
+        <h3 className="text-lg mb-4 font-bold">Order Summary</h3>
         <div className="border-t py-4 mb-4">
           {cart.products.map((product, index) => (
             <div
@@ -320,6 +337,7 @@ const Checkout = () => {
                   <h3 className="text-md">{product.name}</h3>
                   <p className="text-gray-500">Size: {product.size}</p>
                   <p className="text-gray-500">Color: {product.color}</p>
+                  <p className="text-gray-500">Quantity: {product.quantity}</p>
                 </div>
               </div>
               <p className="text-xl">${product.price?.toLocaleString()}</p>
